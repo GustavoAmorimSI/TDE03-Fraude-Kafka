@@ -53,15 +53,23 @@ TDE03-Fraude-Kafka/
 
 Na pasta do projeto, execute:
 
+```powershell
 docker compose up -d
+```
 
 ### Ativar o ambiente virtual
 
+No PowerShell:
+
+```powershell
 .\.venv\Scripts\Activate.ps1
+```
 
 ### Instalar as dependências
 
+```powershell
 python -m pip install -r requirements.txt
+```
 
 ### Criar o tópico Kafka, se necessário
 
