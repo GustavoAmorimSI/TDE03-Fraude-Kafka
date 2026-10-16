@@ -9,13 +9,7 @@ from datetime import datetime
 KAFKA_SERVIDOR = "localhost:9092"
 TOPICO = "transacoes"
 
-clientes = [
-    "cliente01",
-    "cliente02",
-    "cliente03",
-    "cliente04",
-    "cliente05"
-]
+clientes = ["cliente01", "cliente02", "cliente03", "cliente04", "cliente05"]
 
 cidades = [
     "Fortaleza",
@@ -26,11 +20,10 @@ cidades = [
 ]
 
 
-def criar_producer():
-    return KafkaProducer(
-        bootstrap_servers=KAFKA_SERVIDOR,
-        value_serializer=lambda dados: json.dumps(dados).encode("utf-8")
-    )
+producer = KafkaProducer(
+    bootstrap_servers=KAFKA_SERVIDOR,
+    value_serializer=lambda dados: json.dumps(dados).encode("utf-8")
+)
 
 
 def gerar_transacao():
@@ -44,35 +37,28 @@ def gerar_transacao():
     }
 
 
-def main():
-    producer = criar_producer()
-
+try:
     print("Producer iniciado!")
-    print("Enviando transações a cada 3 segundos.")
-    print("Pressione Ctrl+C para encerrar.\n")
 
-    try:
-        while True:
-            transacao = gerar_transacao()
+    while True:
+        transacao = gerar_transacao()
 
-            try:
-                producer.send(TOPICO, transacao).get(timeout=10)
-                print(
-                    f"Enviada | Cliente: {transacao['id_cliente']} | "
-                    f"Valor: R$ {transacao['valor']:.2f} | "
-                    f"Cidade: {transacao['city']}"
-                )
-            except Exception as erro:
-                print(f"Erro ao enviar transação: {erro}")
+        try:
+            producer.send(TOPICO, transacao).get(timeout=10)
 
-            time.sleep(3)
+            print(
+                f"Transação enviada | Cliente: {transacao['id_cliente']} | "
+                f"Valor: R$ {transacao['valor']:.2f} | "
+                f"Cidade: {transacao['city']}"
+            )
 
-    except KeyboardInterrupt:
-        print("\nProducer encerrado.")
+        except Exception as erro:
+            print(f"Erro ao enviar: {erro}")
 
-    finally:
-        producer.close()
+        time.sleep(3)
 
+except KeyboardInterrupt:
+    print("\nProducer encerrado.")
 
-if __name__ == "__main__":
-    main()
+finally:
+    producer.close()
